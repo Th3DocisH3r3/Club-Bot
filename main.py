@@ -37,7 +37,7 @@ print(f"Found {len(downloaded_songs)} downloaded songs")
 idReferance = {}
 if os.path.exists(f"{dirPath}\\idReferances.json"):
    with open(f"{dirPath}\\idReferances.json") as f:
-      idReferance = json.load(idReferance, f)
+      idReferance = json.load(f)
       f.close()
 
 #Grab bot secret
@@ -62,13 +62,13 @@ def updateQueue():
       if song["track"]["id"] in idReferance and not idReferance[song["track"]["id"]] in downloaded_songs.keys():
          idReferance.pop(videoID)
       #Get Video ID
+      artists = ""
+      for artist in song["track"]["artists"]:
+         artists += artist["name"]+","
+      artists = artists.removesuffix(",")
       if song["track"]["id"] in idReferance:
          videoID = idReferance[song["track"]["id"]]
       else:
-         artists = ""
-         for artist in song["track"]["artists"]:
-            artists += artist["name"]+","
-         artists = artists.removesuffix(",")
          video = youtube_search.YoutubeSearch(f"{song["track"]["name"]} - {artists}",max_results=1).to_dict()[0]
          videoID = video["id"]
          #Download song if needed

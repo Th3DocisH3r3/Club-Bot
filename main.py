@@ -17,7 +17,7 @@ Fffmpeg_options = {
 }
 
 ytdlp = yt_dlp.YoutubeDL(ytdlp_format_options)
-spotifyPlaylistID = "23QwK2nByY7jlcTV24G1aE"
+spotifyPlaylistID = "REPLACE WITH SPOTIFY PLAYLIST ID"
 
 #Checks for missing required files
 if not os.path.exists(f"{dirPath}\\botsecret.txt") or not os.path.exists(f"{dirPath}\\spotifysecret.txt"):

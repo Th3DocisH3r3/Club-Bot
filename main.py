@@ -38,6 +38,7 @@ idReferance = {}
 if os.path.exists(f"{dirPath}\\idReferances.json"):
    with open(f"{dirPath}\\idReferances.json") as f:
       idReferance = json.load(idReferance, f)
+      f.close()
 
 #Grab bot secret
 with open(dirPath + "botsecret.txt", "r") as botFile:
@@ -86,6 +87,7 @@ def updateQueue():
    #Update stored idRefernaces
    with open(f"{dirPath}\\idReferances.json", 'w') as f:
       json.dump(idReferance, f)
+      f.close()
 #Trigger the first playlist update
 updateQueue()
 

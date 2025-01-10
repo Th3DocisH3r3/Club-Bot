@@ -47,23 +47,27 @@ with open(dirPath + "spotifysecret.txt", "r") as spotifyFile:
 scope = "user-library-read"
 sp = spotipy.Spotify(auth_manager=SpotifyOAuth(spotifyID,spotifySecret,"http://localhost:8888/callback",scope=scope))
 
-#Get all the songs in the specified spotify playlist
-songQueue = []
-for song in sp.playlist(spotifyPlaylistID,"tracks")["tracks"]["items"]:
-   artists = ""
-   for artist in song["track"]["artists"]:
-      artists += artist["name"]+","
-   artists = artists.removesuffix(",")
-   video = youtube_search.YoutubeSearch(f"{song["track"]["name"]} - {artists}",max_results=1).to_dict()[0]
-   videoID = video["id"]
-   if not videoID in downloaded_songs.keys():
-      info = ytdlp.extract_info(f"https://www.youtube.com/watch?v={videoID}",download=True)
-      filename = ytdlp.prepare_filename(info)
-      downloaded_songs[videoID] = {"file":filename,"title":info["title"]}
-   print(f"{song["track"]["name"]} - {artists} [{videoID}]")
-   songQueue.append(downloaded_songs[videoID])
-currentSong = -1
-shuffle(songQueue)
+def updateQueue():
+   #Get all the songs in the specified spotify playlist
+   global songQueue, currentSong
+   songQueue = []
+   for song in sp.playlist(spotifyPlaylistID,"tracks")["tracks"]["items"]:
+      artists = ""
+      for artist in song["track"]["artists"]:
+         artists += artist["name"]+","
+      artists = artists.removesuffix(",")
+      video = youtube_search.YoutubeSearch(f"{song["track"]["name"]} - {artists}",max_results=1).to_dict()[0]
+      videoID = video["id"]
+      if not videoID in downloaded_songs.keys():
+         info = ytdlp.extract_info(f"https://www.youtube.com/watch?v={videoID}",download=True)
+         filename = ytdlp.prepare_filename(info)
+         downloaded_songs[videoID] = {"file":filename,"title":info["title"]}
+      print(f"{song["track"]["name"]} - {artists} [{videoID}]")
+      songQueue.append(downloaded_songs[videoID])
+   currentSong = 0
+   shuffle(songQueue)
+#Trigger the first playlist update
+updateQueue()
 
 #Setup Discord Bot
 intents = discord.Intents.default()
@@ -84,12 +88,11 @@ async def start():
    #Join voice channel
    if not voice or not voice.is_connected():
       voice = await VoiceChannel.connect()
-   currentSong += 1
    if currentSong >= len(songQueue):
-      currentSong = 0
-      shuffle(songQueue)
+      updateQueue()
    source = discord.FFmpegOpusAudio(songQueue[currentSong]["file"],executable="C:/Program Files/ffmpeg-master-latest-win64-gpl/bin/ffmpeg.exe")
    voice.play(source,after=lambda e: run_coroutine_threadsafe(start(), bot.loop))
    await bot.change_presence(activity=discord.CustomActivity(f"Playing {songQueue[currentSong]["title"]}"))
+   currentSong += 1
 
 bot.run(botSecret)

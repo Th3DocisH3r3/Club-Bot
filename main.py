@@ -22,12 +22,16 @@ Fffmpeg_options = {
 ytdlp = yt_dlp.YoutubeDL(ytdlp_format_options)
 spotifyPlaylistID = "23QwK2nByY7jlcTV24G1aE"
 
+#Creates the downloaded music folder (if it doesn't exist)
+if not os.path.exists(f"{dirPath}\\Downloaded Music"):
+   os.makedirs(f"{dirPath}\\Downloaded Music")
+
 #Reads previously downloaded songs
 downloaded_songs = {}
 for file in os.listdir(f"{dirPath}Downloaded Music"):
    downloaded_songs[file.split("- ")[-1][:-4]] = {"file":f"{dirPath}\\Downloaded Music\\{file}","title":file.split(" - " + file.split(" - ")[-1])[0]}
-
 print(f"Found {len(downloaded_songs)} downloaded songs")
+
 #Grab bot secret
 with open(dirPath + "botsecret.txt", "r") as botFile:
    botSecret = botFile.readline() # Put Bot Secret on first line
@@ -38,11 +42,12 @@ with open(dirPath + "spotifysecret.txt", "r") as spotifyFile:
    spotifySecret = spotifyFile.readline() # Put Spotify Client ID on second line
    spotifyFile.close()
 
+#Connect with spotify api
 scope = "user-library-read"
 sp = spotipy.Spotify(auth_manager=SpotifyOAuth(spotifyID,spotifySecret,"http://localhost:8888/callback",scope=scope))
 
+#Get all the songs in the specified spotify playlist
 songQueue = []
-
 for song in sp.playlist(spotifyPlaylistID,"tracks")["tracks"]["items"]:
    artists = ""
    for artist in song["track"]["artists"]:
@@ -57,10 +62,11 @@ for song in sp.playlist(spotifyPlaylistID,"tracks")["tracks"]["items"]:
    
    print(f"{song["track"]["name"]} - {artists} [{videoID}]")
    songQueue.append(downloaded_songs[videoID])
+currentSong = -1
+random.shuffle(songQueue)
 
-#Discord Bot
+#Setup Discord Bot
 intents = discord.Intents.default()
-
 bot = commands.Bot(command_prefix='!',intents=intents)
 
 #Discord IDs
@@ -70,10 +76,6 @@ discordVoiceChannelID = "REPLACE WITH THE VOICE CHANNEL ID THAT THE BOT WILL BE 
 @bot.event
 async def on_ready():
    await start()
-
-#Index in the queue
-currentSong = -1
-random.shuffle(songQueue)
 
 async def start():
    global currentSong

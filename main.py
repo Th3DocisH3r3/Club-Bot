@@ -63,7 +63,7 @@ for song in sp.playlist(spotifyPlaylistID,"tracks")["tracks"]["items"]:
    print(f"{song["track"]["name"]} - {artists} [{videoID}]")
    songQueue.append(downloaded_songs[videoID])
 currentSong = -1
-random.shuffle(songQueue)
+shuffle(songQueue)
 
 #Setup Discord Bot
 intents = discord.Intents.default()
@@ -87,9 +87,9 @@ async def start():
    currentSong += 1
    if currentSong >= len(songQueue):
       currentSong = 0
-      random.shuffle(songQueue)
+      shuffle(songQueue)
    source = discord.FFmpegOpusAudio(songQueue[currentSong]["file"],executable="C:/Program Files/ffmpeg-master-latest-win64-gpl/bin/ffmpeg.exe")
-   voice.play(source,after=lambda e: asyncio.run_coroutine_threadsafe(start(), bot.loop))
+   voice.play(source,after=lambda e: run_coroutine_threadsafe(start(), bot.loop))
    await bot.change_presence(activity=discord.CustomActivity(f"Playing {songQueue[currentSong]["title"]}"))
 
 bot.run(botSecret)

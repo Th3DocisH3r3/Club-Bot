@@ -1,12 +1,9 @@
-import os
-import discord
+import os, youtube_search, yt_dlp, spotipy, discord
+from asyncio import run_coroutine_threadsafe
+from sys import exit
 from discord.ext import commands
-import spotipy
 from spotipy.oauth2 import SpotifyOAuth
-import youtube_search
-import random
-import yt_dlp
-import asyncio
+from random import shuffle
 
 dirPath = os.path.realpath(__file__).split("main.py")[0]
 ytdlp_format_options = {
@@ -21,6 +18,10 @@ Fffmpeg_options = {
 
 ytdlp = yt_dlp.YoutubeDL(ytdlp_format_options)
 spotifyPlaylistID = "23QwK2nByY7jlcTV24G1aE"
+
+#Checks for missing required files
+if not os.path.exists(f"{dirPath}\\botsecret.txt") or not os.path.exists(f"{dirPath}\\spotifysecret.txt"):
+   exit("ERROR - Missing discord bot secret or spotify client id/secret")
 
 #Creates the downloaded music folder (if it doesn't exist)
 if not os.path.exists(f"{dirPath}\\Downloaded Music"):
@@ -59,7 +60,6 @@ for song in sp.playlist(spotifyPlaylistID,"tracks")["tracks"]["items"]:
       info = ytdlp.extract_info(f"https://www.youtube.com/watch?v={videoID}",download=True)
       filename = ytdlp.prepare_filename(info)
       downloaded_songs[videoID] = {"file":filename,"title":info["title"]}
-   
    print(f"{song["track"]["name"]} - {artists} [{videoID}]")
    songQueue.append(downloaded_songs[videoID])
 currentSong = -1

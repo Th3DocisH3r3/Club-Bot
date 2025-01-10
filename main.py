@@ -94,8 +94,8 @@ intents = discord.Intents.default()
 bot = commands.Bot(command_prefix='!',intents=intents)
 
 #Discord IDs
-discordServerID = "REPLACE WITH SERVER ID"
-discordVoiceChannelID = "REPLACE WITH THE VOICE CHANNEL ID THAT THE BOT WILL BE IN"
+discordServerID = 0 #REPLACE WITH SERVER ID
+discordVoiceChannelID = 0 #REPLACE WITH THE VOICE CHANNEL ID THAT THE BOT WILL BE IN
 
 @bot.event
 async def on_ready():
